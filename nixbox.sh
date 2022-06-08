@@ -2,7 +2,6 @@
 
 container_manager="autodetect"
 # We depend on a container manager let's be sure we have it
-# First we use podman, else docker
 case "${container_manager}" in
 autodetect)
   if command -v docker >/dev/null; then
