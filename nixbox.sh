@@ -25,26 +25,53 @@ if ! command -v "${container_manager}" >/dev/null && [ "${dryrun}" -eq 0 ]; then
 fi
 
 opt=$(tr '[:upper:]' '[:lower:]' <<<"$1")
+image=$(tr '[:upper:]' '[:lower:]' <<<"$2")
+# if no image is selected default to nix image
+if [[ $image == "" ]]; then
+  image=nixos/nix
+fi
+
 case $opt in
--t)
-  echo "Temporary container with no mounts"
-  ${container_manager} run -it --rm nixos/nix:master
+-v)
+  echo "version 1.0"
+  ;;
+-t) 
+  echo "Temporary $image container with no mounts" 
+  ${container_manager} run -it --rm $image
   ;;
 -h)
-  echo "Temporary container with /home/$(id -u -n) mounted inside /home/$(id -u -n)"
-  ${container_manager} run -it --rm --mount type=bind,source=/home/$(id -u -n),target=/home/$(id -u -n) nixos/nix:master
+  echo "Temporary $image container with /home/$(id -u -n) mounted inside /home/$(id -u -n)"
+  ${container_manager} run -it --rm --mount type=bind,source=/home/$(id -u -n),target=/home/$(id -u -n) $image
+  ;;
+-p)
+  echo "Temporary $image container with $(pwd) mounted inside /work"
+  ${container_manager} run -it --rm --mount type=bind,source=$(pwd),target=/work $image
   ;;
 "")
-  echo "Temporary container with $(pwd) mounted inside /work"
-  ${container_manager} run -it --rm --mount type=bind,source=$(pwd),target=/work nixos/nix:master
+  echo "Temporary $image container with $(pwd) mounted inside /work"
+  ${container_manager} run -it --rm --mount type=bind,source=$(pwd),target=/work $image
   ;;
 *)
   echo "$opt is not a valid option"
   echo ""
   echo "included options are:"
-  echo "-t This will enter a Temporary container with no mounts"
-  echo "-h This will enter a Temporary container with /home/$(id -u -n) mounted inside /home/$(id -u -n)"
+  echo "----------------------------------------------------------------------"
+  echo "-t [IMAGE NAME]"
+  echo "This will enter a Temporary container with no mounts"
+  echo "----------------------------------------------------------------------"
+  echo "-h [IMAGE NAME]"
+  echo "This will enter a Temporary container with /home/$(id -u -n) mounted"
+  echo "inside /home/$(id -u -n)"
+  echo "----------------------------------------------------------------------"
+  echo "-p [IMAGE NAME]"
+  echo "This will enter a Temporary container"
+  echo "with $(pwd) mounted inside /work"
+  echo "----------------------------------------------------------------------"
+  echo "-v will give you the current version"
+  echo "----------------------------------------------------------------------"
   echo ""
-  echo "The defualt (no option) will enter a Temporary container with $(pwd) mounted inside /work"
+  echo "The defualt (no option) will enter a Temporary nix container"
+  echo "with $(pwd) mounted inside /work"
+  echo "----------------------------------------------------------------------"
   ;;
 esac
