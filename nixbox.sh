@@ -1,23 +1,8 @@
 #!/usr/bin/env bash
 
-container_manager="autodetect"
-# We depend on a container manager let's be sure we have it
-case "${container_manager}" in
-autodetect)
-  if command -v docker >/dev/null; then
-    container_manager="docker"
-  fi
-  ;;
-docker)
-  container_manager="docker"
-  ;;
-*)
-  printf >&2 "Invalid input %s.\n" "${container_manager}"
-  printf >&2 "The available choices are: 'autodetect', 'docker'\n"
-  ;;
-esac
+container_manager="docker"
 
-if ! command -v "${container_manager}" >/dev/null && [ "${dryrun}" -eq 0 ]; then
+if ! command -v "${container_manager}" >/dev/null; then
   # Error: we need docker.
   printf >&2 "Missing dependency: we need a container manager.\n"
   printf >&2 "Please install docker.\n"
