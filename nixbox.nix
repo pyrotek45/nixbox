@@ -5,9 +5,16 @@ pkgs.stdenv.mkDerivation rec {
 
   programFile = ./nixbox.sh;
 
-  phases = [ "installPhase" ];
+  phases = [ "installPhase" "postUnpack" ];
+
+  dontMakeSourcesWritable = true;
+
   installPhase = ''
     mkdir -p $out/bin
     cp ${programFile} $out/bin/nixbox
+  '';
+
+  postUnpack = ''
+    chmod +x $out/bin/nixbox 
   '';
 }
